@@ -1,9 +1,14 @@
-FIUBA - Taller de Sistemas Embebidos.
-Grupo 03.
+![](logo_fiuba.png)
 
-Proyecto: Alarma vecinal.
+# Alarma vecinal
 
-Contexto.
+### Autores: Valentín Guirin, Carolina Gonzales Peralta, Yerson Michael Monzón Alayo
+
+### Fecha: 2° cuatrimestre de 2025
+
+## Selección del proyecto a implementar
+
+### Contexto.
 
 El proyecto a implementar tiene sus bases en la inseguridad que hoy en día está presente en la Ciudad
 de Buenos Aires. En particular, en las villas miseria, en donde la inseguridad es recurrente
@@ -20,7 +25,7 @@ autorizados puedan activar de forma remota una sirena común mediante una llamad
 costo (llamada no contestada) y que el sistema notifique el evento al resto de la comunidad mediante
 SMS y Bluetooth Low Energy (BLE).
 
-Objetivo.
+### Objetivo del proyecto y resultados esperados
 
 Diseñar un nodo de alarma vecinal, instalado en la calle, que pueda ser activado de forma
 remota por vecinos autorizados, sin costo por llamada, y que a su vez:
@@ -35,7 +40,7 @@ En términos técnicos, se busca materializar un sistema ciberfísico capaz de:
 - Actuar sobre una sirena, buzzer, LEDs y canales de comunicación, de forma determinista
 y medible
 
-Descripción de alto nivel.
+### Descripción de alto nivel.
 
 El sistema consiste en un nodo de alarma vecinal compuesto por los siguientes elementos
 principales:
@@ -54,7 +59,7 @@ configuración (SET_UP), en particular la lista blanca de teléfonos.
 gabinete y soporte al modo FALLA.
 - Dip switches para selección de perfil de funcionamiento (modo demo/real, número de nodo, etc.)
 
-Descripción desde el punto de vista funcional.
+### Descripción desde el punto de vista funcional.
 
 - Recibe una llamada entrante en el SIM card de la alarma.
 - Obtiene el número llamante (Caller ID) vía comandos AT y lo compara contra una lista
@@ -68,7 +73,7 @@ alarma está armada/desarmada y cuáles fueron los últimos eventos.
 - Permite que un administrador, mediante PIN, gestione la lista blanca y parámetros desde el
 LCD/teclado.
 
-Alcace del MVP.
+### Alcance del MVP.
 
 Para acotar el trabajo y cumplir con los plazos de la materia, se define un MVP con el
 siguiente alcance:
@@ -83,7 +88,7 @@ siguiente alcance:
 - Un único sensor analógico para diagnóstico (temperatura interna en caso de que la emergencia sea incendio).
 - Al menos dos modos de operación implementados y demostrables: modo NORMAL, SET_UP y FALLA.
 
-Algunos componentes y funciones.
+### Algunos componentes y funciones.
 
 -Botones/Teclas: teclado matricial 4x4, tecla de pánico, navegación de menú
 - LEDs: Alarma, falla
@@ -93,7 +98,7 @@ Algunos componentes y funciones.
 - Dip switches: selección de perfil de funcionamiento y nodo
 - HM-10: canal de monitoreo BLE para estado y último evento
 
-Componentes principales.
+### Componentes principales.
 
 - NUCLEO-F103RB (STM32F103RB).
 - Módulo GSM SIM800L con fuente regulada a ~4,0 V y capacidad de al menos 2 A.
@@ -107,6 +112,18 @@ Componentes principales.
 - EEPROM I2C (opcional) o uso de Flash interna.
 - Dip switches (al menos 2 bits de configuración).
 - Fuente de alimentación con dos etapas de regulación
+
+## Elicitación de requisitos y casos de uso
+
+En la Ciudad de Buenos Aires existe un competidor crucial en el mercado de la seguridad interconectada: [Verisure](https://www.verisure.com.ar/blog/alarma-barrial-que-es). Si bien es una marca de un gran calibre, consideramos que nuestro proyecto se enfoca en una zona particular y muy específica de la ciudad, dándonos la posibilidad de poder adaptar nuestro producto a las necesidades de la gente que allí resida y así poder consolidarnos en el mercado. Nuestra gran diferencia con
+Verisure es que gran parte de nuestro trabajo será para reducir los costos al mínimo dado el público comprador. Evaluaremos en el transcurso del proyecto si
+convendría vender al Gobierno de la Ciudad o directamente a los residentes, pero concluimos que esta cuestión no influye en los requerimientos del producto
+ya que mantener los costos al mínimo y las funcionalidades que han sido mencionadas son cuestiones que mantendremos independientemente de si la alarma vecinal
+llega a manos de los compradores a través del gobierno o no.
+
+Cabe destacar que, si bien Verisure es nuestro competidos de mayor escala, actualmente hay otras empresas que se dedican a fabricar alarmas no vecinales pero
+que tienen el potencial como para hacerlo. En ese caso, habría más competencia pero creemos que si logramos enfocarnos en las prioridades del costo y
+funcionalidades, podremos hacernos con parte de la ciudad.
 
 
 
