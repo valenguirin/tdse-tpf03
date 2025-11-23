@@ -116,7 +116,7 @@ siguiente alcance:
 
 ## Diagrama en bloques del sistema
 
-![Diagrama en bloques del sistema](diagrama_de_bloques.png)
+![Diagrama en bloques del sistema](diagrama_de_bloques.jpg)
 
 ## Elicitación de requisitos y casos de uso
 
