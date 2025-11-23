@@ -3,6 +3,7 @@
 # Alarma vecinal
 
 ### Autores: Valentín Guirin, Carolina Gonzales Peralta, Yerson Michael Monzón Alayo
+### Padrones: 107416, 110804, 104262
 
 ### Fecha: 2° cuatrimestre de 2025
 
@@ -112,6 +113,10 @@ siguiente alcance:
 - EEPROM I2C (opcional) o uso de Flash interna.
 - Dip switches (al menos 2 bits de configuración).
 - Fuente de alimentación con dos etapas de regulación
+
+## Diagrama en bloques del sistema
+
+![Diagrama en bloques del sistema](diagrama_de_bloques.png)
 
 ## Elicitación de requisitos y casos de uso
 
