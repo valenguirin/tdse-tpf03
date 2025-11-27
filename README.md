@@ -1,4 +1,4 @@
-##![](logo-fiuba.png)
+## ![](logo-fiuba.png)
 
 # Alarma vecinal
 
