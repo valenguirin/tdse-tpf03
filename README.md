@@ -229,7 +229,7 @@ funcionalidades, podremos hacernos con parte de la ciudad.
 ||4.3|La memoria almacenará las coordenadas (configuradas por la central) de la ubicación de la alarma.|
 |Comunicación audio|5.1|El sistema contará con un buzzer (sirena) para transmitir la alerta.|
 |Comunicación bluetooth|6.1|El personal autorizado enviado por la central se vinculará con el sistema mediante Bluetooth.|
-||Comunicación GSM|7.1|El sistema se comunicará con los usuarios mediante la red GSM (vía SMS).|
+|Comunicación GSM|7.1|El sistema se comunicará con los usuarios mediante la red GSM (vía SMS).|
 ||7.2|El sistema se comunicará con la policía mediante la red GSM (vía SMS).|
 ||7.3|El sistema se comunicará con la central mediante la red GSM (vía SMS).|
 |Sensores|8.1|El sistema contará con un sensor lumínico para validar la luz de día.|
