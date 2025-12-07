@@ -10,56 +10,65 @@
 ## Selección del proyecto a implementar
 
 ### Contexto.
-Valentin
 
-El proyecto a implementar tiene sus bases en la inseguridad que hoy en día está presente en la Ciudad
-de Buenos Aires. En particular, en las villas miseria, en donde la inseguridad es recurrente
-y firma de estos lugares. Dadas estas circunstancias, el cuidado entre vecinos residentes
-es crucial y creemos que la adquisición de una alarma vecinal como la que se propone en este
-informe, es importante y sugiere que sería un producto potencialmente comercial. Si bien ya
-existen este tipo de mecanismos, los vecinos tienden a organizarse informalmente: grupos de
-mensajería, silbatos, bocinas caseras o campanas. Sin embargo, estos mecanismos suelen ser
-descoordinados, no escalables y dependen de que un vecino en particular esté atento, tenga
-crédito en el celular o pueda emitir un mensaje en el momento justo.
-El presente trabajo final propone el diseño e implementación de un sistema de alarma
-vecinal basado en una plataforma de sistemas embebidos. El objetivo es que varios vecinos
-autorizados puedan activar de forma remota una sirena común mediante una llamada telefónica sin
-costo (llamada no contestada) y que el sistema notifique el evento al resto de la comunidad mediante
-SMS y Bluetooth Low Energy (BLE).
+El proyecto a implementar tiene sus bases en la inseguridad que hoy en día está presente en la Ciudad de Buenos Aires. En particular, en las villas, donde la inseguridad es recurrente y forma parte del día a día. Dadas estas circunstancias, el cuidado entre vecinos residentes es crucial y creemos que la adquisición de una alarma vecinal como la que se propone en este informe es importante y sugiere que sería un producto potencialmente comercial.
+
+Si bien ya existen este tipo de mecanismos, los vecinos tienden a organizarse de forma informal: grupos de mensajería, silbatos, bocinas caseras o campanas. Sin embargo, estos mecanismos suelen ser descoordinados, no escalables y dependen de que un vecino en particular esté atento, tenga crédito en el celular o pueda emitir un mensaje en el momento justo.
+
+El presente trabajo final propone el diseño e implementación de un sistema de alarma vecinal basado en una plataforma de sistemas embebidos. El objetivo es que varios vecinos autorizados puedan activar de forma remota una sirena común mediante una llamada telefónica sin costo (llamada no contestada) o mediante un botón de pánico local, y que el sistema notifique el evento al resto de los usuarios, a la central y a la policía mediante SMS. La administración y configuración del sistema se realiza de forma remota y controlada a través de Bluetooth Low Energy (BLE) por personal autorizado enviado por la central.
+
+
+
 
 ### Objetivo del proyecto y resultados esperados
 
-Diseñar un nodo de alarma vecinal, instalado en la calle, que pueda ser activado de forma
-remota por vecinos autorizados, sin costo por llamada, y que a su vez:
-- Permita una administración local de la configuración (números autorizados, tiempos de
-sirena) mediante teclado y LCD.
-- Provea feedback al resto de los vecinos mediante SMS y un canal BLE.
-- Cumpla restricciones de bajo consumo, robustez y simplicidad de uso propias de un
-sistema embebido sin sistema operativo.
+Se busca diseñar un nodo de alarma vecinal, instalado en la calle, que pueda ser activado de forma remota por vecinos autorizados sin costo por llamada, y también de forma local mediante un botón de pánico, y que a su vez:
+
+-	Permita una administración remota de la configuración (números autorizados, coordenadas de instalación, contactos de policía/central) mediante una conexión Bluetooth con personal autorizado.
+
+- Provea feedback al resto de los vecinos mediante SMS y un canal BLE hacia la central.
+
+- Cumpla restricciones de bajo consumo, robustez y simplicidad de uso propias de un sistema embebido sin sistema operativo.
+
 En términos técnicos, se busca materializar un sistema ciberfísico capaz de:
-- Escuchar eventos externos (llamadas GSM, teclas, BLE, sensores).
-- Procesarlos mediante una máquina de estados bien definida.
-- Actuar sobre una sirena, buzzer, LEDs y canales de comunicación, de forma determinista
-y medible
+	- Escuchar eventos externos:
+  - llamadas GSM entrantes,
+  - pulsación del botón de pánico,
+  - conexión y comandos del personal autorizado vía BLE,
+	 - lectura del sensor lumínico para determinar día/noche.
+ - Procesar mediante una máquina de estados bien definida (modo armado y desarmado, alta y baja de usuarios y configuración por Bluetooth).
+ - Actuar sobre una sirena/buzzer, una luz estroboscópica, LEDs de estado y canales de comunicación (SMS / BLE) de forma determinista y medible.
+
+
+
 
 ### Descripción de alto nivel.
 
-El sistema consiste en un nodo de alarma vecinal compuesto por los siguientes elementos
-principales:
-- Placa NUCLEO-F103RB (STM32F103RB) como unidad de procesamiento central.
-- Módulo GSM SIM800L para recepción de llamadas y envío de SMS.
-- Módulo BLE HM-10 para exposición de estado hacia teléfonos móviles a través de una app
-tipo “terminal BLE”.
-- Teclado matricial 4x4 y LCD 16x2 para interacción local (menú, PIN de administrador,
-gestión de lista blanca).
-- Módulo de relé para comando de una sirena o luz estroboscópica de mayor potencia.
-- Buzzer piezoeléctrico para feedback sonoro local.
-- LEDs de estado (ARMADA, ALARMA, FALLA).
-- Memoria no volátil (EEPROM I2C externa o Flash interna) para almacenar parámetros de
-configuración (SET_UP), en particular la lista blanca de teléfonos.
-- Sensor analógico (por ejemplo, LM35 o NTC) para monitoreo de temperatura interna de
-gabinete y soporte al modo FALLA.
-- Dip switches para selección de perfil de funcionamiento (modo demo/real, número de nodo, etc.)
+
+El sistema consiste en un nodo de alarma vecinal compuesto por los siguientes elementos principales:
+	-	Placa NUCLEO-F103RB (STM32F103RB) como unidad de procesamiento central.
+	-	Módulo GSM SIM800L para recepción de llamadas y envío de SMS.
+	-	Módulo BLE HM-10 para vinculación con personal autorizado de la central mediante una app tipo “terminal BLE”.
+	-	Botón de pánico montado en el gabinete de la alarma para activación manual local.
+	-	Luz estroboscópica (accionada a través de un módulo de relé o etapa de potencia) para señalizar visualmente el estado de alarma, especialmente de noche.
+	-	Buzzer/sirena para señalización sonora de la activación de la alarma.
+	-	Conjunto de LEDs de estado, incluyendo al menos:
+	 -	LED de sistema armado/encendido,
+	 -	LED de autenticación correcta (vía BLE),
+	 -	LED de autenticación incorrecta.
+	-	Memoria no volátil (utilizando la Flash interna del STM32) para almacenar:
+	 -	la lista de números telefónicos autorizados,
+	 -	las coordenadas de la alarma,
+	 -	las credenciales del personal autorizado,
+	 -	los números de contacto de usuarios, policía y central.
+	-	Sensor lumínico (LDR + divisor resistivo) conectado a un canal ADC para detectar luz de día/noche y adaptar el comportamiento visual de la alarma (uso de la luz estroboscópica).
+
+
+
+ 
+
+
+
 
 ### Descripción desde el punto de vista funcional.
 
