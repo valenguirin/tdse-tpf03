@@ -23,21 +23,19 @@ El presente trabajo final propone el diseño e implementación de un sistema de 
 ### Objetivo del proyecto y resultados esperados
 
 Se busca diseñar un nodo de alarma vecinal, instalado en la calle, que pueda ser activado de forma remota por vecinos autorizados sin costo por llamada, y también de forma local mediante un botón de pánico, y que a su vez:
-
--	Permita una administración remota de la configuración (números autorizados, coordenadas de instalación, contactos de policía/central) mediante una conexión Bluetooth con personal autorizado.
-
+- Permita una administración remota de la configuración (números autorizados, coordenadas de instalación, contactos de policía/central) mediante una conexión Bluetooth con personal autorizado.
 - Provea feedback al resto de los vecinos mediante SMS y un canal BLE hacia la central.
-
 - Cumpla restricciones de bajo consumo, robustez y simplicidad de uso propias de un sistema embebido sin sistema operativo.
 
 En términos técnicos, se busca materializar un sistema ciberfísico capaz de:
-	- Escuchar eventos externos:
-  - llamadas GSM entrantes,
-  - pulsación del botón de pánico,
-  - conexión y comandos del personal autorizado vía BLE,
-	 - lectura del sensor lumínico para determinar día/noche.
- - Procesar mediante una máquina de estados bien definida (modo armado y desarmado, alta y baja de usuarios y configuración por Bluetooth).
- - Actuar sobre una sirena/buzzer, una luz estroboscópica, LEDs de estado y canales de comunicación (SMS / BLE) de forma determinista y medible.
+- Escuchar eventos externos:
+	- llamadas GSM entrantes,
+ 	- pulsación del botón de pánico,
+  	- conexión y comandos del personal autorizado vía BLE,
+  	- lectura del sensor lumínico para determinar día/noche.
+
+- Procesar mediante una máquina de estados bien definida (modo armado y desarmado, alta y baja de usuarios y configuración por Bluetooth).
+- Actuar sobre una sirena/buzzer, una luz estroboscópica, LEDs de estado y canales de comunicación (SMS / BLE) de forma determinista y medible.
 
 
 
@@ -46,22 +44,22 @@ En términos técnicos, se busca materializar un sistema ciberfísico capaz de:
 
 
 El sistema consiste en un nodo de alarma vecinal compuesto por los siguientes elementos principales:
-	-	Placa NUCLEO-F103RB (STM32F103RB) como unidad de procesamiento central.
-	-	Módulo GSM SIM800L para recepción de llamadas y envío de SMS.
-	-	Módulo BLE HM-10 para vinculación con personal autorizado de la central mediante una app tipo “terminal BLE”.
-	-	Botón de pánico montado en el gabinete de la alarma para activación manual local.
-	-	Luz estroboscópica (accionada a través de un módulo de relé o etapa de potencia) para señalizar visualmente el estado de alarma, especialmente de noche.
-	-	Buzzer/sirena para señalización sonora de la activación de la alarma.
-	-	Conjunto de LEDs de estado, incluyendo al menos:
-	 -	LED de sistema armado/encendido,
-	 -	LED de autenticación correcta (vía BLE),
-	 -	LED de autenticación incorrecta.
-	-	Memoria no volátil (utilizando la Flash interna del STM32) para almacenar:
-	 -	la lista de números telefónicos autorizados,
-	 -	las coordenadas de la alarma,
-	 -	las credenciales del personal autorizado,
-	 -	los números de contacto de usuarios, policía y central.
-	-	Sensor lumínico (LDR + divisor resistivo) conectado a un canal ADC para detectar luz de día/noche y adaptar el comportamiento visual de la alarma (uso de la luz estroboscópica).
+- Placa NUCLEO-F103RB (STM32F103RB) como unidad de procesamiento central.
+- Módulo GSM SIM800L para recepción de llamadas y envío de SMS.
+- Módulo BLE HM-10 para vinculación con personal autorizado de la central mediante una app tipo “terminal BLE”.
+- Botón de pánico montado en el gabinete de la alarma para activación manual local.
+- Luz estroboscópica (accionada a través de un módulo de relé o etapa de potencia) para señalizar visualmente el estado de alarma, especialmente de noche.
+- Buzzer/sirena para señalización sonora de la activación de la alarma.
+- Conjunto de LEDs de estado, incluyendo al menos:
+	- LED de sistema armado/encendido,
+ 	- LED de autenticación correcta (vía BLE),
+  	- LED de autenticación incorrecta.
+- Memoria no volátil (utilizando la Flash interna del STM32) para almacenar:
+	- la lista de números telefónicos autorizados,
+ 	- las coordenadas de la alarma,
+  	- las credenciales del personal autorizado,
+  	- los números de contacto de usuarios, policía y central.
+- Sensor lumínico (LDR + divisor resistivo) conectado a un canal ADC para detectar luz de día/noche y adaptar el comportamiento visual de la alarma (uso de la luz estroboscópica).
 
 
 
