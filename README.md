@@ -68,59 +68,133 @@ El sistema consiste en un nodo de alarma vecinal compuesto por los siguientes el
 
 
 
-### Descripción desde el punto de vista funcional.
 
-- Recibe una llamada entrante en el SIM card de la alarma.
-- Obtiene el número llamante (Caller ID) vía comandos AT y lo compara contra una lista
-blanca.
-- Si el número está autorizado, corta la llamada sin contestar (no se factura) y activa la
-sirena durante un tiempo configurable.
-- Opcionalmente, envía SMS de alerta a un conjunto de teléfonos predefinidos.
-- Permite activar la sirena localmente mediante un botón de pánico en el teclado.
-- Expone el estado del sistema por BLE (HM-10) para que los vecinos puedan consultar si la
-alarma está armada/desarmada y cuáles fueron los últimos eventos.
-- Permite que un administrador, mediante PIN, gestione la lista blanca y parámetros desde el
-LCD/teclado.
+
+
+
+
+
+
+### Descripción desde el punto de vista funcional.
+- Activación por llamada GSM
+	- Un vecino autorizado llama al número de la alarma.
+ 	- El módulo SIM800L reporta la llamada entrante y el número llamante (Caller ID) al microcontrolador.
+  	- El sistema corta la llamada sin contestarla (no hay costo) y verifica si el número pertenece a la lista de números telefónicos autorizados almacenados en memoria.
+  	- Si el número está registrado:
+  		- el sistema pasa al estado de alarma activa,
+  	 	- enciende la sirena/buzzer,
+  	  	- y, si el sensor lumínico indica que es de noche, enciende también la luz estroboscópica.
+  	  	- Envía SMS a los usuarios, a la policía y a la central indicando que la alarma se activó por llamada e incluye qué usuario lo hizo y las coordenadas de la alarma.
+	- Si el número no está registrado:
+ 		- el sistema mantiene el estado de reposo (sin sirena ni luz),
+   		- y notifica a la central vía SMS el número desconocido que intentó activar la alarma.
+
+
+- Activación mediante botón de pánico
+	- Un usuario presiona el botón de pánico ubicado en el gabinete de la alarma.
+ 	- Si el sistema está armado y en reposo, se pasa al estado de alarma activa, se enciende la sirena, se acciona la luz estroboscópica en caso de ser de noche, y se envían SMS a los usuarios, policía y central indicando que la alarma se activó por botón de pánico.
+  	- Si ya existe una alarma activa por llamada, el botón de pánico no cambia el tipo de evento para usuarios y policía (se mantiene “activada por llamada”), pero la central recibe información de ambas activaciones.
+
+- Gestión y configuración vía Bluetooth (BLE)
+	- Personal autorizado de la central se aproxima a la alarma y se vincula al módulo HM-10 mediante Bluetooth desde un teléfono móvil.
+ 	- A través de un canal de texto, el personal ingresa su identificador de usuario y una contraseña.
+  	- El microcontrolador verifica las credenciales contra las almacenadas en memoria:
+  		- Si son correctas:
+  	 		- se enciende brevemente el LED de autenticación correcta,
+  	   		- el sistema ingresa en un modo de configuración BLE, en el cual se permite (según el permiso que la central configuró):
+  	     		- dar de alta o de baja usuarios autorizados (números de teléfono),
+  	       		- reiniciar el estado de la alarma en caso de ser necesario,
+  	         	- ajustar la lista de números de policía.
+  	    	- Al finalizar y confirmar los cambios, se almacenan en memoria no volátil y se envía un SMS a la central indicando qué usuario root ingresó y qué tipo de cambios realizó.
+		- Si las credenciales son incorrectas:
+  			- se activa el LED de clave incorrecta,
+  	  		- se deniega la sesión de configuración,
+  	    	- y se notifica a la central el intento fallido.
+	- Si durante una sesión de configuración BLE se activa una alarma (por llamada o pánico), la alarma tiene prioridad: se abortan los cambios no confirmados, se cierra la sesión Bluetooth y el sistema pasa al estado de alarma activa, notificando a la central lo ocurrido.
+
+
+- Uso del sensor lumínico
+	- El sensor lumínico se lee periódicamente mediante el ADC del STM32.
+ 	- A partir de un umbral definido, el sistema clasifica la condición como “día” o “noche”.
+  	- La luz estroboscópica puede condicionarse a esta información (por ejemplo, encenderse solo de noche o con un comportamiento distinto), y la condición día/noche puede incluirse en los mensajes a la central si se considera relevante.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ### Alcance del MVP.
 
-Para acotar el trabajo y cumplir con los plazos de la materia, se define un MVP con el
-siguiente alcance:
-- Soporte de hasta N números de teléfono en lista blanca.
-- Un único nodo de alarma, instalado en una esquina o edificio.
-- Activación de la sirena por:
- - llamada entrante autorizada,
- - botón de pánico local en el teclado.
-- Notificación de evento vía:
- - SMS a al menos un número predefinido,
- - mensaje de texto por BLE (estado + último evento).
-- Un único sensor analógico para diagnóstico (temperatura interna en caso de que la emergencia sea incendio).
-- Al menos dos modos de operación implementados y demostrables: modo NORMAL, SET_UP y FALLA.
+- Un único nodo de alarma vecinal, instalado en centro de la calle, sobre un poste de luz o vivienda.
+- Soporte de una lista de números telefónicos autorizados almacenada en memoria no volátil.
+- Dos mecanismos de activación de la alarma:
+	- Llamada entrante autorizada a través de la red GSM, sin costo por llamada (llamada no contestada).
+ 	- Botón de pánico físico montado en el gabinete de la alarma.
+- Notificación de eventos de alarma mediante:
+	- Envío de SMS a:
+ 		- usuarios vecinos,
+   		- policía,
+     	- central. 
+
+- Gestión remota vía Bluetooth:
+	- Conexión de personal autorizado de la central, autenticado mediante usuario/contraseña.
+ 	- Alta y baja de números de teléfono autorizados.
+  	- Configuración de coordenadas de la alarma y contactos de policía/central.
+- Uso de un sensor lumínico para distinguir entre día y noche y condicionar el uso de la luz estroboscópica.
+
+- Modos de operación implementados y demostrables:
+	- Modo ARMADO (sistema en espera, listo para alarmar).
+ 	- Modo ALARMA_ACTIVA (sirena/luz/SMS).
+  	- Modo CONFIGURACIÓN_BLE (sesión de configuración con personal autorizado).
+
+
+
+
 
 ### Algunos componentes y funciones.
+- Botón de pánico: entrada digital que dispara la activación local de la alarma.
+- LEDs:
+	- LED de sistema armado/encendido,
+ 	- LED de autenticación correcta (BLE),
+  	- LED de autenticación incorrecta (BLE).
+- Buzzer/Sirena: elemento sonoro principal para señalización de alarma.
+- Luz estroboscópica: salida de potencia (vía relé/MOSFET) para señalización visual intensa.
+- Memoria no volátil: uso de la Flash interna del STM32F103RB para almacenar lista de números autorizados, coordenadas y credenciales.
+- Sensor analógico lumínico: LDR + divisor resistivo conectado al ADC para distinguir día/noche.
+- HM-10 (BLE): canal de comunicación con personal de la central para autenticación, configuración de usuarios y parámetros.
+- SIM800L (GSM): recepción de llamadas entrantes con Caller ID y envío de SMS a usuarios, policía y central.
 
--Botones/Teclas: teclado matricial 4x4, tecla de pánico, navegación de menú
-- LEDs: Alarma, falla
-- Buzzer: feedback sonoto en cambios de estado, errores y pulsaciones
-- Memoria no volátil: EEPROM I2C externa o Flash interna para lista blanca y parámetros
-- Sensor analógico: LM35/NTC para diagnóstico térmico
-- Dip switches: selección de perfil de funcionamiento y nodo
-- HM-10: canal de monitoreo BLE para estado y último evento
+
+
 
 ### Componentes principales.
 
 - NUCLEO-F103RB (STM32F103RB).
 - Módulo GSM SIM800L con fuente regulada a ~4,0 V y capacidad de al menos 2 A.
 - Módulo BLE HM-10 alimentado a 3,3 V.
-- LCD 16x2 compatible HD44780 en modo 4 bits.
-- Teclado matricial 4x4.
-- Módulo de relé con aislamiento óptico para la sirena/luz.
-- Buzzer piezoeléctrico 5 V.
-- LEDs indicadores (mínimo 3: ARM, ALARM, FAIL).
-- Sensor analógico (LM35/NTC).
-- EEPROM I2C (opcional) o uso de Flash interna.
-- Dip switches (al menos 2 bits de configuración).
-- Fuente de alimentación con dos etapas de regulación
+- Botón de pánico (pulsador robusto para montaje en gabinete).
+- Módulo de relé o etapa MOSFET para comando de la luz estroboscópica y/o sirena de mayor potencia.
+- Buzzer/sirena 12 V para señal de alarma sonora.
+- LEDs indicadores (armado, credencial correcta, credencial incorrecta).
+- Sensor lumínico (LDR + resistencia fija formando divisor, conectado a un canal ADC).
+- Memoria no volátil interna del STM32 (Flash), reservando páginas para configuración y whitelist.
+- Fuente de alimentación con dos etapas de regulación:
+	- 12 V de entrada (fuente externa),
+	- conversión a 5 V para NUCLEO y periféricos de baja potencia,
+	- conversión a ~4,0 V exclusiva para el SIM800L, con capacitores de reserva para picos de corriente.
 
 ## Diagrama en bloques del sistema
 
