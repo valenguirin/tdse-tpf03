@@ -132,7 +132,36 @@ Cabe destacar que, si bien Verisure es nuestro competidos de mayor escala, actua
 que tienen el potencial como para hacerlo. En ese caso, habría más competencia pero creemos que si logramos enfocarnos en las prioridades del costo y
 funcionalidades, podremos hacernos con parte de la ciudad.
 
+| Grupo | ID | Descripción |
+| :---- | :---- | :---- |
+|Activación|1.1|El sistema permitirá su activación mediante un teclado matricial.|
+||1.2|El sistema perimitirá su activación mediante una llamada autorizada.|
+||1.3|En caso de activación, el sistema activará la sirena por un tiempo determinado.|
+|Indicadores|2.1|El sistema contará con un indicador luminoso para indicar que hay una alerta.|
+||2.2|El sistema contará con un indicador luminoso para indicar que hubo una falsa alarma.|
+||2.3|El sistema contará con un set de leds para indicar que la clave es correcta.|
+||2.4|El sistema contará con un set de leds para indicar que la clave es incorrecta.|
+||2.5|El sistema notifica con luz cuando se deja una clave incompleta.|
+|Interruptores/Botones|3.1|El sistema contará con botones para accionar la alarma de forma manual.|
+||3.2|El sistema contará con un boton para detener la sirena manualmente en caso de falsa alarma.|
+|Memoria|4.1|El sistema contará con una memoria para almacenar datos.|
+||4.2|La memoria almacenará la lista de números telefónicos autorizados.|
+||4.3|La memoria almacenará el historial de alertas anteriores.|
+|Administración|5.1|El sistema tendrá ciertos usuarios denominados administradores.|
+||5.2|El sistema permitirá al administrador modificar la lista de números telefónicos.|
+||5.3|El sistema permitirá al administrador configurar los datos y parámetros de la alarma.|
+||5.4|El sistema notificará al administrador si un usuario (autorizado o no) intenta activar la alarma.|
+||5.5|El sistema permitirá el cambio de administrador.|
+|Comunicación audio|6.1|El sistema contará con un generador de sonido para transmitir señales de audio.|
+|Comunicación inalámbrica|7.1|El sistema se comunicará con el usuario mediante Bluetooth.|
+||7.2|El sistema se comunicará con el usuario mediante llamadas y SMS.|
+||7.3|El sistema notificará al usuario mediante un mensaje si se ha notificado la alerta correctamente.|
+||7.4|El sistema notificará a los números designados (autoridades) mediante una llamada si hay una alerta.|
+||7.5|El sistema notificará a los usuarios mediante un SMS si hay una alerta.|
+||7.6|El sistema notificará a los usuarios y numeros designados si hay una falsa alarma.|
+|Sensores|8.1|El sistema contará con un sensor de temperatura para monitoreo de temperatura interna.|
 
+<p align="center"><em>Tabla 1.1: Requisitos del proyecto</em></p>
 
 
 
