@@ -11,8 +11,6 @@
 
 ### Contexto.
 
-YERSON YERSON
-
 El proyecto a implementar tiene sus bases en la inseguridad que hoy en día está presente en la Ciudad
 de Buenos Aires. En particular, en las villas miseria, en donde la inseguridad es recurrente
 y firma de estos lugares. Dadas estas circunstancias, el cuidado entre vecinos residentes
@@ -134,34 +132,53 @@ funcionalidades, podremos hacernos con parte de la ciudad.
 
 | Grupo | ID | Descripción |
 | :---- | :---- | :---- |
-|Activación|1.1|El sistema permitirá su activación mediante un teclado matricial.|
-||1.2|El sistema perimitirá su activación mediante una llamada autorizada.|
-||1.3|En caso de activación, el sistema activará la sirena por un tiempo determinado.|
-|Indicadores|2.1|El sistema contará con un indicador luminoso para indicar que hay una alerta.|
-||2.2|El sistema contará con un indicador luminoso para indicar que hubo una falsa alarma.|
+|Acceso|1.1|El sistema permitirá el acceso mediante Bluetooth.|
+||1.2|En caso de acceso permitido, el sistema guardará qué usuario root que ingresó|
+|Indicadores|2.1|El sistema contará con un indicador luminoso (luz estorboscópica) para indicar que hay una alerta.|
+||2.2|El sistema contará con un buzzer (sirena) para indicar la activación de la alarma.|
 ||2.3|El sistema contará con un set de leds para indicar que la clave es correcta.|
 ||2.4|El sistema contará con un set de leds para indicar que la clave es incorrecta.|
-||2.5|El sistema notifica con luz cuando se deja una clave incompleta.|
-|Interruptores/Botones|3.1|El sistema contará con botones para accionar la alarma de forma manual.|
-||3.2|El sistema contará con un boton para detener la sirena manualmente en caso de falsa alarma.|
+||2.5|El sistema enviará un mensaje a la policía, a todos los usuarios y a la central mediante GSM para indicar qué usuario activó la alarma mediante llamada.|
+||2.6|El sistema enviará un mensaje a la policía, a todos los usuarios y a la central mediante GSM para indicar que la alarma se activó mediante botón de pánico.|
+||2.7|El sistema contará con un led para indicar el estado de la alarma (armada o desarmada).|
+|Interruptores/Botones|3.1|El sistema contará con un botón para accionar la alarma de forma manual (botón de pánico).|
 |Memoria|4.1|El sistema contará con una memoria para almacenar datos.|
 ||4.2|La memoria almacenará la lista de números telefónicos autorizados.|
-||4.3|La memoria almacenará el historial de alertas anteriores.|
-|Administración|5.1|El sistema tendrá ciertos usuarios denominados administradores.|
-||5.2|El sistema permitirá al administrador modificar la lista de números telefónicos.|
-||5.3|El sistema permitirá al administrador configurar los datos y parámetros de la alarma.|
-||5.4|El sistema notificará al administrador si un usuario (autorizado o no) intenta activar la alarma.|
-||5.5|El sistema permitirá el cambio de administrador.|
-|Comunicación audio|6.1|El sistema contará con un generador de sonido para transmitir señales de audio.|
-|Comunicación inalámbrica|7.1|El sistema se comunicará con el usuario mediante Bluetooth.|
-||7.2|El sistema se comunicará con el usuario mediante llamadas y SMS.|
-||7.3|El sistema notificará al usuario mediante un mensaje si se ha notificado la alerta correctamente.|
-||7.4|El sistema notificará a los números designados (autoridades) mediante una llamada si hay una alerta.|
-||7.5|El sistema notificará a los usuarios mediante un SMS si hay una alerta.|
-||7.6|El sistema notificará a los usuarios y numeros designados si hay una falsa alarma.|
-|Sensores|8.1|El sistema contará con un sensor de temperatura para monitoreo de temperatura interna.|
+||4.3|La memoria almacenará las coordenadas (configuradas por la central) de la ubicación de la alarma.|
+|Comunicación audio|5.1|El sistema contará con un buzzer (sirena) para transmitir la alerta.|
+|Comunicación bluetooth|6.1|El personal autorizado enviado por la central se vinculará con el sistema mediante Bluetooth.|
+||Comunicación GSM|7.1|El sistema se comunicará con los usuarios mediante la red GSM (vía SMS).|
+||7.2|El sistema se comunicará con la policía mediante la red GSM (vía SMS).|
+||7.3|El sistema se comunicará con la central mediante la red GSM (vía SMS).|
+|Sensores|8.1|El sistema contará con un sensor lumínico para validar la luz de día.|
 
 <p align="center"><em>Tabla 1.1: Requisitos del proyecto</em></p>
 
+| Elemento | Definición |
+| :---- | :---- |
+|Disparador|El usuario llama al número de la alarma.|
+|Precondiciones|El sistema está encendido (led de estado armado), las luces estorbostópicas apagadas y buzzer inactivo.|
+|Flujo principal|El usuario llama al número guardado (previamente en su lista de contactos) de la alarma, el sistema corta la llamada, valida que el usuario esté registrado. En caso de estar registrado, enciente la sirena, la luz estorboscópica (si es de noche) y notifica a la policía, a los usuarios y a la central que se activó la alarma mediante llamada (y quién lo hizo).|
+|Flujo alternativo|A. El usuario no está registrado, el sistema corta la llamada y revisa en su memoria si el número está en la base de datos. Al no encontrarlo, mantiene las precondiciones en el mismo estado y notifica a la central el número que fue utilizado. B. Múltiples usuarios llaman, el sistema recibe la llamada pues corta todas a la brevedad. El sistema activó la alarma en la primer llamada, y mientras más llamadas lleguen en los próximos 60 segundos, no reaccionará más que enviando los números de las redundantes llamadas a la central.
+
+<p align="center"><em>Tabla 1.2: casos de uso: el usuario activa la alarma mediante la red GSM (llamada)</em></p>
+
+| Elemento | Definición |
+| :---- | :---- |
+|Disparador|El usuario presiona el botón de pánico.|
+|Precondiciones|El sistema está encendido (led de estado armado), las luces estorbostópicas apagadas y buzzer inactivo.|
+|Flujo principal|El usuario presiona el botón de pánico ubicado debajo de la alarma. Se enciente la sirena, la luz estorboscópica (si es de noche) y notifica a la policía, a los usuarios y a la central que se activó la alarma mediante botón de pánico.|
+|Flujo alternativo|A. El usuario presiona el botón cuando ya hay una llamada activa, la alarma se activa pero por la llamada previa. Los usuarios y la policía reciben el mensaje de que la alarma fue activada por lllamada, mientras que la central recibe las dos activaciones. B. El usuario presiona el botón cuando ya está sonando la alarma. La central es la única notificada y el estado de la alarma no cambia.|
+
+<p align="center"><em>Tabla 1.3: casos de uso: el usuario activa la alarma mediante botón de pánico (llamada)</em></p>
+
+| Elemento | Definición |
+| :---- | :---- |
+|Disparador|El personal autorizado se conecta mediante Bluetooth.|
+|Precondiciones|El sistema está encendido (led de estado armado), las luces estorbostópicas apagadas y buzzer inactivo.|
+|Flujo principal|El personal autorizado se aproxima a la zona de la alarma, se conecta mediante Bluetooth, ingresa su número de usuario y contraseña. Puede dar de alta o de baja usuarios. Tanto al información del personal autorizado como los cambios que realizó, se notifican a la central mediante SMS.|
+|Flujo alternativo|A. El usuario o contraseña son incorrectos, se denega el acceso y se notifica a la central. B. Se activa la alarma mientras se están realizando cambios, se cancelan los cambios (no se guardan), y se cierra la comunicación Bluetooth hasta que la alarma se desactive.|
+
+<p align="center"><em>Tabla 1.4: casos de uso: el personal autorizado se conecta mediante Bluetooth al sistema (llamada)</em></p>
 
 
