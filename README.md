@@ -198,7 +198,7 @@ El sistema consiste en un nodo de alarma vecinal compuesto por los siguientes el
 
 ## Diagrama en bloques del sistema
 
-![Diagrama en bloques del sistema](diagrama_de_bloques.jpg)
+![Diagrama en bloques del sistema](diagrama_de_bloques.png)
 
 ## Elicitación de requisitos y casos de uso
 
