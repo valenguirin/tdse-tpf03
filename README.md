@@ -251,6 +251,7 @@ En la Tabla 1.1 se presentan los requisitos del proyecto, organizados por grupo 
 ||7.2|El sistema se comunicará con la policía mediante la red GSM (vía SMS).|
 ||7.3|El sistema se comunicará con la central mediante la red GSM (vía SMS).|
 |Sensores|8.1|El sistema contará con un sensor lumínico para validar la luz de día.|
+|Entrega|9.1|La entrega del proyecto está prevista para el mes de febrero de 2026.|
 
 <p align="center"><em>Tabla 1.1: Requisitos del proyecto</em></p>
 
