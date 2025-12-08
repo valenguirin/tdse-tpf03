@@ -23,7 +23,7 @@ El presente trabajo final propone el diseño e implementación de un sistema de 
 ### Objetivo del proyecto y resultados esperados
 
 Se busca diseñar un nodo de alarma vecinal, instalado en la calle, que pueda ser activado de forma remota por vecinos autorizados sin costo por llamada, y también de forma local mediante un botón de pánico, y que a su vez:
-- Permita una administración remota de la configuración (números autorizados, coordenadas de instalación, contactos de policía/central) mediante una conexión Bluetooth con personal autorizado.
+- Permita una administración remota de la configuración (números autorizados, coordenadas de instalación, contactos de policía/central) mediante una conexión BLE con personal autorizado.
 - Provea feedback al resto de los vecinos mediante SMS y un canal BLE hacia la central.
 - Cumpla restricciones de bajo consumo, robustez y simplicidad de uso propias de un sistema embebido sin sistema operativo.
 
@@ -76,6 +76,8 @@ El sistema consiste en un nodo de alarma vecinal compuesto por los siguientes el
 
 
 ### Descripción desde el punto de vista funcional.
+Desde el punto de vista funcional, el nodo de alarma vecinal se comporta como un sistema ciberfísico que recibe eventos del entorno (llamadas GSM, pulsación del botón de pánico y conexión BLE del personal autorizado), los procesa mediante una máquina de estados y actúa sobre la sirena, la luz estroboscópica y los canales de notificación por SMS. A continuación se resumen los escenarios de funcionamiento más relevantes del sistema.
+
 - Activación por llamada GSM
 	- Un vecino autorizado llama al número de la alarma.
  	- El módulo SIM800L reporta la llamada entrante y el número llamante (Caller ID) al microcontrolador.
@@ -91,12 +93,14 @@ El sistema consiste en un nodo de alarma vecinal compuesto por los siguientes el
 
 
 - Activación mediante botón de pánico
+En este escenario el usuario no necesita disponer de un teléfono ni estar en contacto con la central: la interacción se realiza exclusivamente a través del botón de pánico instalado en el gabinete de la alarma. El siguiente flujo describe cómo se comporta el sistema cuando la alarma se dispara localmente mediante dicho botón.
+
 	- Un usuario presiona el botón de pánico ubicado en el gabinete de la alarma.
  	- Si el sistema está armado y en reposo, se pasa al estado de alarma activa, se enciende la sirena, se acciona la luz estroboscópica en caso de ser de noche, y se envían SMS a los usuarios, policía y central indicando que la alarma se activó por botón de pánico.
   	- Si ya existe una alarma activa por llamada, el botón de pánico no cambia el tipo de evento para usuarios y policía (se mantiene “activada por llamada”), pero la central recibe información de ambas activaciones.
 
-- Gestión y configuración vía Bluetooth (BLE)
-	- Personal autorizado de la central se aproxima a la alarma y se vincula al módulo HM-10 mediante Bluetooth desde un teléfono móvil.
+- Gestión y configuración vía BLE
+	- Personal autorizado de la central se aproxima a la alarma y se vincula al módulo HM-10 mediante BLE desde un teléfono móvil.
  	- A través de un canal de texto, el personal ingresa su identificador de usuario y una contraseña.
   	- El microcontrolador verifica las credenciales contra las almacenadas en memoria:
   		- Si son correctas:
@@ -110,7 +114,7 @@ El sistema consiste en un nodo de alarma vecinal compuesto por los siguientes el
   			- se activa el LED de clave incorrecta,
   	  		- se deniega la sesión de configuración,
   	    	- y se notifica a la central el intento fallido.
-	- Si durante una sesión de configuración BLE se activa una alarma (por llamada o pánico), la alarma tiene prioridad: se abortan los cambios no confirmados, se cierra la sesión Bluetooth y el sistema pasa al estado de alarma activa, notificando a la central lo ocurrido.
+	- Si durante una sesión de configuración BLE se activa una alarma (por llamada o pánico), la alarma tiene prioridad: se abortan los cambios no confirmados, se cierra la sesión BLE y el sistema pasa al estado de alarma activa, notificando a la central lo ocurrido.
 
 
 - Uso del sensor lumínico
@@ -137,6 +141,7 @@ El sistema consiste en un nodo de alarma vecinal compuesto por los siguientes el
 
 
 ### Alcance del MVP.
+Con el objetivo de hacer viable la implementación dentro del cuatrimestre, se definió un alcance mínimo del sistema (MVP, Minimum Viable Product). En esta sección se enumeran las decisiones de recorte y las funcionalidades concretas que se consideran obligatorias para la primera versión del nodo de alarma vecinal.
 
 - Un único nodo de alarma vecinal, instalado en centro de la calle, sobre un poste de luz o vivienda.
 - Soporte de una lista de números telefónicos autorizados almacenada en memoria no volátil.
@@ -149,7 +154,7 @@ El sistema consiste en un nodo de alarma vecinal compuesto por los siguientes el
    		- policía,
      	- central. 
 
-- Gestión remota vía Bluetooth:
+- Gestión remota vía BLE:
 	- Conexión de personal autorizado de la central, autenticado mediante usuario/contraseña.
  	- Alta y baja de números de teléfono autorizados.
   	- Configuración de coordenadas de la alarma y contactos de policía/central.
@@ -165,6 +170,8 @@ El sistema consiste en un nodo de alarma vecinal compuesto por los siguientes el
 
 
 ### Algunos componentes y funciones.
+En esta sección se describen, de manera sintética, los componentes de hardware y módulos lógicos que intervienen en el sistema, junto con la función principal que cumple cada uno dentro de la arquitectura de la alarma vecinal. El objetivo es dejar claro qué rol tiene cada bloque antes de entrar en detalles de implementación.
+
 - Botón de pánico: entrada digital que dispara la activación local de la alarma.
 - LEDs:
 	- LED de sistema armado/encendido,
@@ -181,6 +188,8 @@ El sistema consiste en un nodo de alarma vecinal compuesto por los siguientes el
 
 
 ### Componentes principales.
+A nivel de hardware, el nodo de alarma vecinal se construye a partir de una placa de desarrollo y un conjunto reducido de módulos externos que aportan conectividad, sensado y actuación. A continuación se listan los componentes principales seleccionados para la implementación del prototipo.
+
 
 - NUCLEO-F103RB (STM32F103RB).
 - Módulo GSM SIM800L con fuente regulada a ~4,0 V y capacidad de al menos 2 A.
@@ -198,7 +207,15 @@ El sistema consiste en un nodo de alarma vecinal compuesto por los siguientes el
 
 ## Diagrama en bloques del sistema
 
+
+
+
+En la Figura 1.1 se presenta el diagrama en bloques del nodo de alarma vecinal, donde se muestran los principales módulos de hardware y las interfaces de comunicación entre ellos. El microcontrolador STM32F103RB se ubica en el centro del sistema y se conecta al módulo GSM SIM800L para llamadas y SMS, al módulo BLE HM-10 para la configuración por parte del personal autorizado, a las entradas locales (botón de pánico y sensor lumínico), a los indicadores luminosos de estado y a los actuadores de alarma (sirena y luz estroboscópica), utilizando además su memoria Flash interna como almacenamiento no volátil de la configuración y de la lista de números autorizados.
+
 ![Diagrama en bloques del sistema](diagrama_de_bloques.png)
+
+<p align="center"><em>Figura 1.1: Diagrama en bloques del sistema de alarma vecinal basado en GSM y Bluetooth Low Energy (BLE).</em></p>
+
 
 ## Elicitación de requisitos y casos de uso
 
@@ -208,13 +225,13 @@ convendría vender al Gobierno de la Ciudad o directamente a los residentes, per
 ya que mantener los costos al mínimo y las funcionalidades que han sido mencionadas son cuestiones que mantendremos independientemente de si la alarma vecinal
 llega a manos de los compradores a través del gobierno o no.
 
-Cabe destacar que, si bien Verisure es nuestro competidos de mayor escala, actualmente hay otras empresas que se dedican a fabricar alarmas no vecinales pero
+Cabe destacar que, si bien Verisure es nuestro competidor de mayor escala, actualmente hay otras empresas que se dedican a fabricar alarmas no vecinales pero
 que tienen el potencial como para hacerlo. En ese caso, habría más competencia pero creemos que si logramos enfocarnos en las prioridades del costo y
 funcionalidades, podremos hacernos con parte de la ciudad.
 
 | Grupo | ID | Descripción |
 | :---- | :---- | :---- |
-|Acceso|1.1|El sistema permitirá el acceso mediante Bluetooth.|
+|Acceso|1.1|El sistema permitirá el acceso mediante BLE.|
 ||1.2|En caso de acceso permitido, el sistema guardará qué usuario root que ingresó|
 |Indicadores|2.1|El sistema contará con un indicador luminoso (luz estorboscópica) para indicar que hay una alerta.|
 ||2.2|El sistema contará con un buzzer (sirena) para indicar la activación de la alarma.|
@@ -228,7 +245,7 @@ funcionalidades, podremos hacernos con parte de la ciudad.
 ||4.2|La memoria almacenará la lista de números telefónicos autorizados.|
 ||4.3|La memoria almacenará las coordenadas (configuradas por la central) de la ubicación de la alarma.|
 |Comunicación audio|5.1|El sistema contará con un buzzer (sirena) para transmitir la alerta.|
-|Comunicación bluetooth|6.1|El personal autorizado enviado por la central se vinculará con el sistema mediante Bluetooth.|
+|Comunicación BLE|6.1|El personal autorizado enviado por la central se vinculará con el sistema mediante BLE.|
 |Comunicación GSM|7.1|El sistema se comunicará con los usuarios mediante la red GSM (vía SMS).|
 ||7.2|El sistema se comunicará con la policía mediante la red GSM (vía SMS).|
 ||7.3|El sistema se comunicará con la central mediante la red GSM (vía SMS).|
@@ -256,11 +273,11 @@ funcionalidades, podremos hacernos con parte de la ciudad.
 
 | Elemento | Definición |
 | :---- | :---- |
-|Disparador|El personal autorizado se conecta mediante Bluetooth.|
+|Disparador|El personal autorizado se conecta mediante BLE.|
 |Precondiciones|El sistema está encendido (led de estado armado), las luces estorbostópicas apagadas y buzzer inactivo.|
-|Flujo principal|El personal autorizado se aproxima a la zona de la alarma, se conecta mediante Bluetooth, ingresa su número de usuario y contraseña. Puede dar de alta o de baja usuarios. Tanto al información del personal autorizado como los cambios que realizó, se notifican a la central mediante SMS.|
-|Flujo alternativo|A. El usuario o contraseña son incorrectos, se denega el acceso y se notifica a la central. B. Se activa la alarma mientras se están realizando cambios, se cancelan los cambios (no se guardan), y se cierra la comunicación Bluetooth hasta que la alarma se desactive.|
+|Flujo principal|El personal autorizado se aproxima a la zona de la alarma, se conecta mediante BLE, ingresa su número de usuario y contraseña. Puede dar de alta o de baja usuarios. Tanto al información del personal autorizado como los cambios que realizó, se notifican a la central mediante SMS.|
+|Flujo alternativo|A. El usuario o contraseña son incorrectos, se denega el acceso y se notifica a la central. B. Se activa la alarma mientras se están realizando cambios, se cancelan los cambios (no se guardan), y se cierra la comunicación BLE hasta que la alarma se desactive.|
 
-<p align="center"><em>Tabla 1.4: casos de uso: el personal autorizado se conecta mediante Bluetooth al sistema (llamada)</em></p>
+<p align="center"><em>Tabla 1.4: casos de uso: el personal autorizado se conecta mediante BLE al sistema (llamada)</em></p>
 
 
