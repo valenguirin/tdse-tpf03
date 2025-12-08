@@ -229,6 +229,7 @@ Cabe destacar que, si bien Verisure es nuestro competidor de mayor escala, actua
 que tienen el potencial como para hacerlo. En ese caso, habría más competencia pero creemos que si logramos enfocarnos en las prioridades del costo y
 funcionalidades, podremos hacernos con parte de la ciudad.
 
+En la Tabla 1.1 se presentan los requisitos del proyecto, organizados por grupo (acceso, indicadores, interruptores, memoria, comunicación y sensores).
 | Grupo | ID | Descripción |
 | :---- | :---- | :---- |
 |Acceso|1.1|El sistema permitirá el acceso mediante BLE.|
@@ -253,6 +254,10 @@ funcionalidades, podremos hacernos con parte de la ciudad.
 
 <p align="center"><em>Tabla 1.1: Requisitos del proyecto</em></p>
 
+
+
+En la Tabla 1.2 se presenta el caso de uso en el cual un vecino autorizado activa la alarma mediante una llamada GSM al número asignado al nodo. El sistema recibe la llamada a través del módulo SIM800L, obtiene el número llamante y lo compara contra la lista de teléfonos autorizados almacenada en memoria no volátil. Si el número está registrado, la llamada se corta sin costo, se activa la sirena y, en función del sensor lumínico, se enciende o no la luz estroboscópica. Finalmente, se envían mensajes SMS a los usuarios, a la policía y a la central indicando que la alarma fue activada por llamada y especificando qué usuario la disparó.
+
 | Elemento | Definición |
 | :---- | :---- |
 |Disparador|El usuario llama al número de la alarma.|
@@ -262,6 +267,11 @@ funcionalidades, podremos hacernos con parte de la ciudad.
 
 <p align="center"><em>Tabla 1.2: casos de uso: el usuario activa la alarma mediante la red GSM (llamada)</em></p>
 
+
+
+En la Tabla 1.3 se describe el caso de uso correspondiente a la activación local de la alarma mediante el botón de pánico instalado en el gabinete del nodo. En este escenario, cualquier persona que se encuentre en la zona puede disparar la alarma sin necesidad de contar con un teléfono móvil ni estar incluida en la lista de números autorizados. Al presionar el botón, el sistema pasa al estado de alarma activa, enciende la sirena y, si es de noche, la luz estroboscópica, y notifica por SMS a los usuarios, a la policía y a la central que la activación se produjo por botón de pánico. También se contemplan situaciones en las que el botón se presiona mientras ya hay una alarma en curso, registrándose el evento principalmente a nivel de la central.
+
+
 | Elemento | Definición |
 | :---- | :---- |
 |Disparador|El usuario presiona el botón de pánico.|
@@ -270,6 +280,10 @@ funcionalidades, podremos hacernos con parte de la ciudad.
 |Flujo alternativo|A. El usuario presiona el botón cuando ya hay una llamada activa, la alarma se activa pero por la llamada previa. Los usuarios y la policía reciben el mensaje de que la alarma fue activada por lllamada, mientras que la central recibe las dos activaciones. B. El usuario presiona el botón cuando ya está sonando la alarma. La central es la única notificada y el estado de la alarma no cambia.|
 
 <p align="center"><em>Tabla 1.3: casos de uso: el usuario activa la alarma mediante botón de pánico (llamada)</em></p>
+
+
+
+En la Tabla 1.4 se detalla el caso de uso en el que el personal autorizado de la central accede al sistema mediante una conexión BLE utilizando el módulo HM-10. El usuario se aproxima a la zona de la alarma, se conecta con una aplicación tipo terminal BLE, e ingresa su identificador y contraseña para autenticarse. Una vez validado, puede dar de alta o de baja números telefónicos autorizados y modificar parámetros de configuración, como las coordenadas del nodo o los contactos de la central y la policía. Tanto la información del personal que se conectó como los cambios realizados se notifican a la central mediante SMS, y si durante la sesión se dispara una alarma, la configuración en curso se cancela y se prioriza la gestión del evento de alarma.
 
 | Elemento | Definición |
 | :---- | :---- |
