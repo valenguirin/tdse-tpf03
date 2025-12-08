@@ -34,7 +34,7 @@ En términos técnicos, se busca materializar un sistema ciberfísico capaz de:
   	- conexión y comandos del personal autorizado vía BLE,
   	- lectura del sensor lumínico para determinar día/noche.
 
-- Procesar mediante una máquina de estados bien definida (modo armado y desarmado, alta y baja de usuarios y configuración por Bluetooth).
+- Procesar mediante una máquina de estados bien definida (modo armado y desarmado, alta y baja de usuarios y configuración por BLE).
 - Actuar sobre una sirena/buzzer, una luz estroboscópica, LEDs de estado y canales de comunicación (SMS / BLE) de forma determinista y medible.
 
 
