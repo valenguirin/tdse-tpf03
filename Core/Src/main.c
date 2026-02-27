@@ -159,7 +159,11 @@ typedef struct {
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+/* USER CODE BEGIN PV */
+volatile uint32_t start_cycles = 0;
+volatile uint32_t elapsed_cycles = 0;
+volatile uint32_t max_cycles = 0;
+/* USER CODE END PV */
 /*
 +------------------------------------------------------------------------------+
 | 3. BUS DE EVENTOS (INTER-PROCESS COMMUNICATION)                              |
@@ -1122,10 +1126,17 @@ int main(void)
   MX_USART3_UART_Init();
 
   /* USER CODE BEGIN 2 */
-  /* El sistema invoca la carga y validación de la base de datos en RAM. */
   EEPROM_Init();
   /* El procesador configura el módulo celular. */
   GSM_Init();
+
+   /* VARIABLES PARA MEDIR WCET POR SOFTWARE */
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT->CYCCNT = 0;
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+
+    /* USER CODE END 2 */
+  /* El sistema invoca la carga y validación de la base de datos en RAM. */
 
   /* El núcleo habilita el servicio de interrupciones para capturar caracteres
      asíncronos desde el Bluetooth y el módem sin bloquear procesos. */
@@ -1141,6 +1152,7 @@ int main(void)
    */
   while (1)
   {
+	  start_cycles = DWT->CYCCNT;
       /* Bloque de Adquisición: El sistema captura y valida señales físicas. */
       FSM_Sensor_LDR_Update();
       FSM_Sensor_PanicButton_Update();
@@ -1160,7 +1172,15 @@ int main(void)
       FSM_SMS_Update();
 
       /* Retardo prudencial: Impone un límite temporal para la disipación térmica del procesador. */
-      HAL_Delay(1);
+      /* Detiene el cronómetro y calcula la diferencia */
+            elapsed_cycles = DWT->CYCCNT - start_cycles;
+
+            /* Si el ciclo actual tardó más que el máximo histórico, lo actualiza */
+            if (elapsed_cycles > max_cycles) {
+                max_cycles = elapsed_cycles;
+            }
+
+            HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
   }
 }
 /**
