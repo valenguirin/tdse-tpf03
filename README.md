@@ -13,15 +13,23 @@ El entorno de prueba mantuvo el módulo Bluetooth (BLE) conectado al stm a 5V pe
     * Estado activo: **37.8 mA**
     * *Evidencia 1:*
 <div align="center">
-  <img src="img/01_consumo_5v.jpg" alt="Medición de consumo a 5V" width="600">
+  <img src="img/01_consumo_5v.jpeg" alt="Medición de consumo a 5V" width="600">
+</div>
+<div align="center">
+  <img src="img/02_consumo_5v.jpeg" alt="Medición de consumo a 5V" width="600">
 </div>
 
 * **Consumo sobre la línea de 3.3 V (Microcontrolador STM32):**
-    * Estado de reposo: **33.1 mA**
+    * Estado de reposo: **31.1 mA**
     * Estado activo: **33.1 mA**
     * *Evidencia 2:*
+ 
 <div align="center">
-  <img src="img/02_consumo_3v3.jpg" alt="Medición de consumo a 3.3V" width="600">
+  <img src="img/01_consumo_3v3.jpeg" alt="Medición de consumo a 3.3V" width="600">
+</div>
+
+<div align="center">
+  <img src="img/02_consumo_3v3.jpeg" alt="Medición de consumo a 3.3V" width="600">
 </div>
 
 ### Análisis del módulo GSM (SIM800L)
