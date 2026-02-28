@@ -51,7 +51,8 @@ Para la evaluación temporal del *Worst Case Execution Time* (WCET) el análisis
 <div align="center">
   <img src="img/03_wcet_osciloscopio.png" alt="Captura de tiempo normal" width="600">
 </div>
-<br>
+
+
 * *Evidencia 4 (Tiempo en Estrés - WCET):*
 <div align="center">
   <img src="img/04_wcet_osciloscopio.png" alt="Captura de pulso WCET" width="600">
