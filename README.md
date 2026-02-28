@@ -6,7 +6,7 @@ a los requerimientos técnicos de la arquitectura de hardware y software del pro
 ## 1. Medición y análisis de consumo
 
 Las pruebas de consumo de corriente sobre la placa NUCLEO-F103RB arrojaron los siguientes resultados. 
-El entorno de prueba mantuvo el módulo Bluetooth (BLE) conectado al STM a 5V permanente durante todas las mediciones.
+El entorno de prueba mantuvo el módulo Bluetooth (BLE) conectado al STM a 5 V permanente durante todas las mediciones.
 
 * **Consumo sobre la línea de 5 V (Sistema general):**
     * Estado de reposo: **36.1 mA**
