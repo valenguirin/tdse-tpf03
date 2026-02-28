@@ -106,24 +106,18 @@ $$U = \frac{WCET}{T_{ciclo}} \times 100$$
 
 ## 5. Gestión del modo de bajo consumo
 
-El código fuente incorpora directrices específicas de administración de energía para optimizar el rendimiento térmico y eléctrico.
+El código fuente incorpora directrices específicas de administración de energía para optimizar el rendimiento térmico y eléctrico del microcontrolador.
 
 * **Modo seleccionado:** Sleep Mode (`HAL_PWR_EnterSLEEPMode`).
 
-* **Justificación técnica:** El cálculo del factor de uso demuestra la inactividad de la unidad central de procesamiento la mayor parte del tiempo. El sistema demanda mantener operativas las interfaces UART para la recepción asíncrona de comandos desde los periféricos Bluetooth y GSM. El modo Sleep detiene el reloj del núcleo central, pero conserva los periféricos encendidos. El microcontrolador despierta automáticamente ante interrupciones de red o al completarse el ciclo del temporizador base.
+El cálculo del factor de uso demuestra que, fuera de los eventos de crisis (donde el uso alcanza el 87.73%), la unidad central de procesamiento (CPU) permanece inactiva la mayor parte del tiempo. Sin embargo, por la naturaleza reactiva de la alarma, el sistema demanda mantener operativas las interfaces UART para la recepción asíncrona de comandos desde los periféricos Bluetooth y GSM. 
+El modo Sleep detiene el reloj del núcleo central para el ahorro de energía, pero conserva los periféricos encendidos.
+De esta manera, el microcontrolador despierta automáticamente ante interrupciones de red o al completarse el ciclo del temporizador base (SysTick).
 
-* *Evidencia 6:*
+* *Evidencia 6: Implementación en código fuente*
 <div align="center">
   <img src="img/06_codigo_sleep.png" alt="Código de bajo consumo" width="600">
 </div>
 
-```c
-      /* Bloque de Transmisión: El motor UART avanza pasos en la negociación con la red. */
-      FSM_SMS_Update();
 
-      /* Entra en Sleep Mode. La CPU se detiene ahorrando energía, pero los periféricos UART
-         siguen activos. El sistema despierta automáticamente con la interrupción del
-         SysTick (1ms) o cuando ingresa un dato por Bluetooth/GSM. */
-      HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-  }
-}
+
