@@ -1130,10 +1130,7 @@ int main(void)
   /* El procesador configura el módulo celular. */
   GSM_Init();
 
-   /* VARIABLES PARA MEDIR WCET POR SOFTWARE */
-    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-    DWT->CYCCNT = 0;
-    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+
 
     /* USER CODE END 2 */
   /* El sistema invoca la carga y validación de la base de datos en RAM. */
@@ -1142,6 +1139,14 @@ int main(void)
      asíncronos desde el Bluetooth y el módem sin bloquear procesos. */
   HAL_UART_Receive_IT(&huart1, &rx_byte, 1);
   HAL_UART_Receive_IT(&huart3, &rx_byte_gsm, 1);
+
+
+
+
+  /* VARIABLES PARA MEDIR WCET POR SOFTWARE */
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT->CYCCNT = 0;
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
   /* USER CODE END 2 */
 
   /**
@@ -1173,14 +1178,17 @@ int main(void)
 
       /* Retardo prudencial: Impone un límite temporal para la disipación térmica del procesador. */
       /* Detiene el cronómetro y calcula la diferencia */
-            elapsed_cycles = DWT->CYCCNT - start_cycles;
+      elapsed_cycles = DWT->CYCCNT - start_cycles;
 
-            /* Si el ciclo actual tardó más que el máximo histórico, lo actualiza */
-            if (elapsed_cycles > max_cycles) {
+      /* Si el ciclo actual tardó más que el máximo histórico, lo actualiza */
+      if (elapsed_cycles > max_cycles) {
                 max_cycles = elapsed_cycles;
-            }
+      }
 
-            HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+      /* VUELVE A PONER EL DELAY TEMPORALMENTE */
+            HAL_Delay(1);
+
+
   }
 }
 /**
