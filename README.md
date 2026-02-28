@@ -45,16 +45,35 @@ surge de la división de este voltaje máximo por el valor resistivo, por la Ley
 
 ## 2. Medición y análisis de tiempos de ejecución de cada tarea (WCET)
 
-La evaluación temporal del *Worst Case Execution Time* (WCET) requiere la instrumentación de un pin GPIO y el registro del pulso lógico máximo.
+Para la evaluación temporal del *Worst Case Execution Time* (WCET) el análisis se aplica con el registro interno DWT del microcontrolador a 72 MHz para registrar los ciclos de reloj exactos del sistema.
 
-* Tiempo máximo de ejecución registrado (WCET): **[COMPLETAR VALOR EN MILISEGUNDOS/MICROSEGUNDOS]**
-
-* Condiciones de la prueba de estrés: **[DESCRIBIR BREVEMENTE QUÉ ALARMAS SE ACTIVARON PARA LA PRUEBA]**
-
-* *Evidencia 3:*
+* *Evidencia 3 (Tiempo en Reposo):*
 <div align="center">
-  <img src="img/03_wcet_osciloscopio.jpg" alt="Captura del pulso WCET" width="600">
+  <img src="img/03_wcet_osciloscopio.jpg" alt="Captura de tiempo normal" width="600">
 </div>
+<br>
+* *Evidencia 4 (Tiempo en Estrés - WCET):*
+<div align="center">
+  <img src="img/04_wcet_osciloscopio.jpg" alt="Captura de pulso WCET" width="600">
+</div>
+
+**Análisis Matemático y Conversión Temporal:**
+La arquitectura del microcontrolador opera a una frecuencia fija de 72 MHz. Esta velocidad de 
+procesamiento equivale a 72.000 ciclos de reloj por cada milisegundo (o 72 ciclos por cada microsegundo). 
+
+Para determinar el tiempo real de ejecución, se hace la división del número de ciclos capturados
+en la herramienta de depuración por este factor de conversión de la CPU.
+
+* **Cálculo del sistema en estado de reposo (Evidencia 3):**
+$$Tiempo_{reposo} = \frac{1058 \text{ ciclos}}{72 \text{ ciclos/\mu s}} = 14.69 \text{ \mu s}$$
+
+* **Cálculo del sistema en estado de estrés (Evidencia 4):**
+$$WCET = \frac{514750 \text{ ciclos}}{72000 \text{ ciclos/ms}} = 7.15 \text{ ms}$$
+
+* Tiempo máximo de ejecución registrado (WCET): **7.15 milisegundos**.
+* Condiciones de la prueba de estrés: **El sistema procesó la activación de la alarma por botón
+  físico y por llamada y la más exigente fue la llamada, se completó con el envío de los mensajes y conexiones BLE y comandos de altas y bajas.**
+
 
 ## 3. Captura de pantalla de "Console & Build Analyzer"
 
@@ -72,17 +91,18 @@ El reporte de uso de memoria tras la compilación de la versión final del códi
 
 ## 4. Cálculo del Factor de Uso (U) de la CPU
 
-La determinación del factor de carga del procesador aplica la relación directa entre el tiempo de ejecución en el peor de los casos y la duración total del ciclo del sistema.
+Para la determinación del factor de carga del procesador se aplica la relación directa entre el tiempo de
+ejecución en el peor de los casos y la duración total del ciclo del sistema.
 
 **Fórmula aplicada:**
 $$U = \frac{WCET}{T_{ciclo}} \times 100$$
 
 **Desarrollo del cálculo:**
-* WCET: **[COMPLETAR VALOR]**
+* WCET: **7.15 ms**
 
-* Tiempo de ciclo total ($T_{ciclo}$): **[COMPLETAR VALOR DEL WCET + RETARDO DEL SISTEMA]**
+* Tiempo de ciclo total ($T_{ciclo}$): **8.15 ms** (7.15 ms de ejecución máxima + 1.0 ms de retardo programado por la interrupción base SysTick).
 
-* Resultado Final ($U$): **[COMPLETAR PORCENTAJE]%**
+* Resultado Final ($U$): **87.73 %**
 
 ## 5. Gestión del modo de bajo consumo
 
