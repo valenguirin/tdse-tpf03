@@ -49,12 +49,12 @@ Para la evaluación temporal del *Worst Case Execution Time* (WCET) el análisis
 
 * *Evidencia 3 (Tiempo en Reposo):*
 <div align="center">
-  <img src="img/03_wcet_osciloscopio.jpg" alt="Captura de tiempo normal" width="600">
+  <img src="img/03_wcet_osciloscopio.png" alt="Captura de tiempo normal" width="600">
 </div>
 <br>
 * *Evidencia 4 (Tiempo en Estrés - WCET):*
 <div align="center">
-  <img src="img/04_wcet_osciloscopio.jpg" alt="Captura de pulso WCET" width="600">
+  <img src="img/04_wcet_osciloscopio.png" alt="Captura de pulso WCET" width="600">
 </div>
 
 **Análisis Matemático y Conversión Temporal:**
@@ -63,12 +63,11 @@ procesamiento equivale a 72.000 ciclos de reloj por cada milisegundo (o 72 ciclo
 
 Para determinar el tiempo real de ejecución, se hace la división del número de ciclos capturados
 en la herramienta de depuración por este factor de conversión de la CPU.
-
 * **Cálculo del sistema en estado de reposo (Evidencia 3):**
-$$Tiempo_{reposo} = \frac{1058 \text{ ciclos}}{72 \text{ ciclos/\mu s}} = 14.69 \text{ \mu s}$$
-
+$$Tiempo_{reposo} = \frac{1058 \text{ ciclos}}{72 \text{ ciclos/µs}} = 14.69 \text{ µs}$$
 * **Cálculo del sistema en estado de estrés (Evidencia 4):**
 $$WCET = \frac{514750 \text{ ciclos}}{72000 \text{ ciclos/ms}} = 7.15 \text{ ms}$$
+
 
 * Tiempo máximo de ejecución registrado (WCET): **7.15 milisegundos**.
 * Condiciones de la prueba de estrés: **El sistema procesó la activación de la alarma por botón
