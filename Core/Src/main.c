@@ -1185,9 +1185,7 @@ int main(void)
                 max_cycles = elapsed_cycles;
       }
 
-      /* VUELVE A PONER EL DELAY TEMPORALMENTE */
-            HAL_Delay(1);
-
+      HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 
   }
 }
