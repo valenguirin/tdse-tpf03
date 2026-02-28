@@ -6,7 +6,7 @@ a los requerimientos técnicos de la arquitectura de hardware y software del pro
 ## 1. Medición y análisis de consumo
 
 Las pruebas de consumo de corriente sobre la placa NUCLEO-F103RB arrojaron los siguientes resultados. 
-El entorno de prueba mantuvo el módulo Bluetooth (BLE) conectado al stm a 5V permanente durante todas las mediciones.
+El entorno de prueba mantuvo el módulo Bluetooth (BLE) conectado al STM a 5V permanente durante todas las mediciones.
 
 * **Consumo sobre la línea de 5 V (Sistema general):**
     * Estado de reposo: **36.1 mA**
@@ -33,11 +33,11 @@ El entorno de prueba mantuvo el módulo Bluetooth (BLE) conectado al stm a 5V pe
 </div>
 
 ### Análisis del módulo GSM (SIM800L)
-Como secarece de un osciloscopio. Por este motivo, el reporte omite la medición 
+Como se carece de un osciloscopio. Por este motivo, el reporte omite la medición 
 de los picos transitorios de consumo del módulo GSM SIM800L. 
 
 Para un registro preciso de la energía de este componente, el procedimiento teórico sería 
-la instalación de una resistencia  de bajo valor (por ejemplo, 0.1 ohmios) en serie con 
+la instalación de una resistencia  de bajo valor (por ejemplo, 0.1 $\Omega$) en serie con 
 la alimentación positiva (VCC) del módulo. Un osciloscopio, con sus sondas en paralelo a la resistencia, 
 se debería capturar la caída de tensión máxima originada por la ráfaga de transmisión de un SMS o llamda entrante. 
 De esta forma el cálculo de la corriente pico real 
