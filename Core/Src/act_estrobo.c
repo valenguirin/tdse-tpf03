@@ -3,7 +3,7 @@
  *
  * Control de la baliza luminosa mediante una FSM de dos estados.
  * Se activa solo durante el modo nocturno, por orden del sistema central.
- * El apagado es automatico a los 20 s o por comando de silencio.
+ * El apagado es automático a los 20 s o por comando de silencio mediante BLE.
  */
 #include "act_estrobo.h"
 #include "app_events.h"

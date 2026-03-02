@@ -1,7 +1,4 @@
-/**
- * @file  sensor_gsm.h
- * @brief FSM de detección y validación de llamadas GSM entrantes.
- */
+/* Deteccion y validacion de llamadas entrantes (SIM800L) */
 #ifndef SENSOR_GSM_H
 #define SENSOR_GSM_H
 

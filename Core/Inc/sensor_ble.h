@@ -1,7 +1,4 @@
-/**
- * @file  sensor_ble.h
- * @brief FSM de autenticación Bluetooth y gestión de comandos BLE.
- */
+/* Autenticacion BLE y procesamiento de comandos */
 #ifndef SENSOR_BLE_H
 #define SENSOR_BLE_H
 

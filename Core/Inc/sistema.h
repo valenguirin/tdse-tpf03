@@ -1,7 +1,4 @@
-/**
- * @file  sistema.h
- * @brief FSM cerebro central: orquesta la transición entre STANDBY y ALARM_ACTIVE.
- */
+/* FSM central del sistema: maneja STANDBY y ALARM_ACTIVE */
 #ifndef SISTEMA_H
 #define SISTEMA_H
 

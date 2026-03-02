@@ -1,12 +1,5 @@
-/**
- * @file  eeprom_driver.h
- * @brief Driver de EEPROM I2C con escritura no bloqueante.
- *
- * - eeprom_driver_init(): lee datos al arranque (bloqueante, una sola vez).
- * - eeprom_driver_escribir_slot(): encola la escritura sin HAL_Delay.
- * - eeprom_driver_update(): avanza la FSM de escritura (1 byte cada 5 ms).
- * - eeprom_agregar_numero() / eeprom_borrar_numero(): gestión de la BD de vecinos.
- */
+/* Driver EEPROM AT24C256 por I2C. La init() carga los vecinos al arranque,
+   las escrituras desde el loop son no bloqueantes usando I2C IT. */
 #ifndef EEPROM_DRIVER_H
 #define EEPROM_DRIVER_H
 

@@ -3,7 +3,7 @@
  *
  * Indicador visual de operatividad del sistema.
  * El LED permanece encendido en standby y se apaga durante una emergencia
- * activa para indicar que el sistema esta ocupado procesando la alarma.
+ *
  */
 #include "act_led_rojo.h"
 #include "app_events.h"

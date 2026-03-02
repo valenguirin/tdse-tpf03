@@ -1,25 +1,13 @@
 /*
  * sms_manager.c
  *
- * Motor de envio de SMS con cola circular y maquina de estados no bloqueante.
+ * Cola de SMS y FSM de envio no bloqueante para el SIM800L.
+ * Toda la TX usa Transmit_IT, el flag_gsm_tx_done lo setea el callback de TX.
  *
- * Todas las transmisiones UART usan HAL_UART_Transmit_IT. El callback
- * sms_manager_tx_done_callback() se llama desde HAL_UART_TxCpltCallback
- * (USART3) en main.c y levanta flag_gsm_tx_done para desbloquear la FSM.
- *
- * El modem SIM800L requiere un protocolo de dos pasos para enviar un SMS:
- *   1. Se envia el comando AT+CMGS con el numero destino.
- *   2. El modem responde con '>'; recien entonces se envia el texto y 0x1A.
- * La FSM espera cada confirmacion antes de avanzar al paso siguiente.
- *
- * Mapa de estados:
- *   SMS_IDLE        : espera cola no vacia, GSM listo y retardo inicial de 4 s.
- *   SMS_SEND_CMD    : inicia TX IT del comando AT+CMGS.
- *   SMS_WAIT_TX_CMD : aguarda confirmacion de fin de TX del comando.
- *   SMS_WAIT_PROMPT : aguarda el prompt '>' o timeout de 3 s.
- *   SMS_SEND_MSG    : inicia TX IT del mensaje mas el byte 0x1A.
- *   SMS_WAIT_TX_MSG : aguarda confirmacion de fin de TX del mensaje.
- *   SMS_WAIT_OK     : aguarda OK, ERROR o timeout de 12 s del modem.
+ * El protocolo del modem necesita dos pasos:
+ *   1. Mandar AT+CMGS con el numero y esperar que llegue el prompt '>'.
+ *   2. Mandar el texto terminado en 0x1A y esperar OK.
+ * La FSM tiene 7 estados para manejar cada paso y los timeouts.
  */
 #include "sms_manager.h"
 #include "gsm_driver.h"

@@ -1,23 +1,10 @@
 /*
  * gsm_driver.c
  *
- * Inicializacion no bloqueante del modem SIM800L.
- *
- * El modem necesita unos segundos para registrarse en la red celular antes
- * de recibir comandos AT. Esta FSM reemplaza los HAL_Delay de la version
- * anterior con temporizadores basados en HAL_GetTick(), de modo que el
- * sistema puede atender otros eventos mientras espera.
- *
- * Secuencia:
- *   1. Espera 3 s a que el modem se conecte a la red.
- *   2. Envia AT+CLIP=1 para habilitar el identificador de llamada.
- *   3. Espera 500 ms.
- *   4. Envia AT+CMGF=1 para modo texto en SMS.
- *   5. Espera 500 ms.
- *   6. Queda en estado DONE; gsm_driver_is_ready() devuelve true.
- *
- * Los envios usan HAL_UART_Transmit_IT. El flag flag_gsm_tx_done lo setea
- * sms_manager_tx_done_callback() desde HAL_UART_TxCpltCallback en main.c.
+ * Inicializacion del modem SIM800L sin bloquear el loop.
+ * Espera 3s a que se registre en la red, manda AT+CLIP=1 y AT+CMGF=1
+ * con pausas de 500ms. Cuando termina, gsm_driver_is_ready() devuelve true.
+ * Los envios van por Transmit_IT, sin HAL_Delay.
  */
 
 #include "gsm_driver.h"

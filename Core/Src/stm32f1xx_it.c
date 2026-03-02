@@ -58,7 +58,7 @@
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
-
+extern I2C_HandleTypeDef hi2c1;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -257,5 +257,13 @@ void EXTI15_10_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+void I2C1_EV_IRQHandler(void)
+{
+    HAL_I2C_EV_IRQHandler(&hi2c1);
+}
 
+void I2C1_ER_IRQHandler(void)
+{
+    HAL_I2C_ER_IRQHandler(&hi2c1);
+}
 /* USER CODE END 1 */

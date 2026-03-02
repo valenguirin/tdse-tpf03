@@ -1,14 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    main.c
-  * @brief   Orquestador del Sistema de Alarma Vecinal.
-  *
-  * El sistema implementa un ejecutor cíclico con periodo de 1 ms controlado
-  * por SysTick. Cada módulo tiene su propia FSM y se ejecuta una vez por tick.
-  * El factor de uso se calcula con los wcet medidos por el contador DWT.
-  *
-  * U = sum(wcet_tarea) / 1000 us   ->  debe ser << 1
+  main.c - Sistema de Alarma Vecinal
+  Loop principal con ejecutor ciclico de 1ms.
+  Cada modulo tiene su FSM y corre una vez por tick de SysTick.
   ******************************************************************************
   */
 /* USER CODE END Header */
@@ -40,14 +35,10 @@
 /* Flag seteado por SysTick cada 1 ms para disparar el ciclo de tareas. */
 volatile uint8_t g_tick_flag = 0;
 
-/*
- * Variables de profiling — agregar en Live Expressions del debugger.
- *
- * t_xxx_us    : tiempo de la ultima ejecucion de cada tarea (us)
- * wcet_xxx_us : maximo historico medido desde el arranque (us)
- *
- * Para calcular U manualmente:  U = suma(wcet) / 1000
- */
+/* Profiling con DWT. Agregar en Live Expressions del debugger.
+   t_xxx_us = ultimo tiempo de cada tarea en us
+   wcet_xxx_us = maximo historico desde el arranque
+   U = suma de todos los wcet_xxx / 1000 */
 volatile uint32_t t_sensor_boton_us     = 0;
 volatile uint32_t t_sensor_ldr_us       = 0;
 volatile uint32_t t_sensor_ble_us       = 0;
@@ -81,12 +72,7 @@ void SystemClock_Config(void);
 
 /* USER CODE BEGIN PFP */
 
-/*
- * Macro de medicion con DWT.
- * Lee el contador de ciclos antes y despues de la llamada.
- * Divide por 72 para obtener microsegundos (reloj a 72 MHz).
- * Actualiza el maximo si el valor actual lo supera.
- */
+/* Mide cuantos us tarda cada tarea con el DWT (72 ciclos = 1 us @ 72 MHz). */
 #define TASK_MEASURE(t_var, wcet_var, func_call)    \
     do {                                             \
         uint32_t _c0 = DWT->CYCCNT;                 \
@@ -111,13 +97,12 @@ int main(void)
 
     /* USER CODE BEGIN 2 */
 
-    /* Habilita el contador de ciclos DWT del Cortex-M3 para medir WCET. */
+    /* Activa el contador DWT para medir tiempos con TASK_MEASURE. */
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
     DWT->CYCCNT = 0;
     DWT->CTRL  |= DWT_CTRL_CYCCNTENA_Msk;
 
-    /* Inicializacion de modulos. La EEPROM lee la base de datos al arranque
-       y el driver GSM inicia su secuencia de configuracion no bloqueante. */
+    /* Inicializacion de modulos. La EEPROM carga los vecinos antes del loop. */
     eeprom_driver_init();
     gsm_driver_init();
 
@@ -136,8 +121,7 @@ int main(void)
 
     /* USER CODE END 2 */
 
-    /* El loop espera el flag de tick antes de ejecutar las tareas.
-       De esta forma el ciclo tiene periodo fijo de 1 ms sin HAL_Delay. */
+    /* Espera el tick de 1ms antes de correr las tareas. */
     while (1)
     {
         if (g_tick_flag) {
@@ -204,6 +188,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
    su FSM al siguiente estado. */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART3) sms_manager_tx_done_callback();
+}
+
+/* El callback de escritura I2C (Mem_Write_IT completado) notifica al
+   driver de EEPROM para que avance su FSM al siguiente estado. */
+void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
+    if (hi2c->Instance == I2C1) flag_i2c_done = 1;
 }
 
 /* En caso de error UART se rearma la recepcion por interrupcion sin

@@ -1,10 +1,4 @@
-/**
- * @file  gsm_driver.h
- * @brief Driver de inicialización no bloqueante del módem SIM800L.
- *
- * Envía AT+CLIP=1 y AT+CMGF=1 mediante HAL_UART_Transmit_IT,
- * usando HAL_GetTick() para los temporizadores (sin HAL_Delay).
- */
+/* Inicializacion del modem SIM800L sin bloquear el loop */
 #ifndef GSM_DRIVER_H
 #define GSM_DRIVER_H
 

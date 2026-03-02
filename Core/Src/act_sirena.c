@@ -3,7 +3,7 @@
  *
  * Control del rele acustico mediante una FSM de dos estados.
  * El actuador se activa por comando del sistema central y se apaga
- * automaticamente a los 20 s o por comando de silencio.
+ * automaticamente a los 20 s o por comando de silencio mediante BLE.
  */
 #include "act_sirena.h"
 #include "app_events.h"

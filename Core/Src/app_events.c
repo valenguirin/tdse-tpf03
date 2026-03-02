@@ -1,6 +1,6 @@
 /**
- * @file  app_events.c
- * @brief Definición única de todas las variables del bus de eventos inter-módulos.
+ *  app_events.c
+ *  Definición única de todas las variables del bus de eventos inter-módulos.
  */
 #include "app_events.h"
 
@@ -39,6 +39,7 @@ volatile uint8_t flag_gsm_prompt  = 0;
 volatile uint8_t flag_gsm_ok      = 0;
 volatile uint8_t flag_gsm_error   = 0;
 volatile uint8_t flag_gsm_tx_done = 0;
+volatile uint8_t flag_i2c_done    = 0;
 volatile uint8_t flag_comando_ble = 0;
 char             comando_ble_buffer[50] = "";
 

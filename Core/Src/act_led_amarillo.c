@@ -47,7 +47,7 @@ void act_led_amarillo_update(void) {
             break;
 
         case ST_YEL_BLINK:
-            /* Alterna el pin cada 100 ms y desactiva el parpadeo al cumplir 1 s. */
+            /* parpadea el pin cada 100 ms y desactiva el parpadeo al pasar 1 s. */
             if ((HAL_GetTick() - ui_tick_toggle) >= 100U) {
                 HAL_GPIO_TogglePin(LED_SYS_ARMED_GPIO_Port, LED_SYS_ARMED_Pin);
                 ui_tick_toggle = HAL_GetTick();

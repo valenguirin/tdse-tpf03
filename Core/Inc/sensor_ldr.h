@@ -1,7 +1,4 @@
-/**
- * @file  sensor_ldr.h
- * @brief FSM del LDR para detección de ciclo día/noche (ventana 2 s).
- */
+/* FSM del LDR para deteccion dia/noche */
 #ifndef SENSOR_LDR_H
 #define SENSOR_LDR_H
 

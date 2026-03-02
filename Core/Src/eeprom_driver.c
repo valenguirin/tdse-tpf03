@@ -1,21 +1,15 @@
 /*
  * eeprom_driver.c
  *
- * Driver para la memoria EEPROM externa conectada por I2C.
+ * Driver para la EEPROM externa AT24C256 conectada por I2C.
  *
- * La EEPROM guarda la lista de numeros autorizados de vecinos. Al arrancar,
- * eeprom_driver_init() lee todos los slots a la RAM (operacion bloqueante,
- * ocurre una sola vez antes del loop principal). Si la memoria es nueva o
- * esta corrupta, se formatea y se escribe un numero de vecino por defecto.
+ * Al arrancar lee todos los numeros de vecinos a RAM (bloqueante, solo una vez
+ * antes del loop). Si la memoria es nueva la formatea y pone un numero por defecto.
  *
- * Las escrituras desde el loop (alta y baja de numeros) son no bloqueantes.
- * eeprom_driver_escribir_slot() encola la operacion y eeprom_driver_update()
- * la ejecuta un byte por tick, con una espera de 5 ms entre bytes usando
- * HAL_GetTick() en lugar de HAL_Delay().
+ * Las escrituras desde el loop son no bloqueantes: usa I2C IT y espera
+ * los 5ms que pide el chip entre bytes con HAL_GetTick().
  *
- * Mapa de memoria:
- *   0x0000         : MAGIC_BYTE (0xAB), indica que la EEPROM tiene datos validos.
- *   0x0010 + i*16  : slot del vecino i (15 bytes de numero + terminador).
+ * Mapa: 0x0000 = magic byte (0xAB), 0x0010 + i*16 = slot vecino i.
  */
 
 #include "eeprom_driver.h"
@@ -31,7 +25,8 @@
 
 typedef enum {
     EE_IDLE,       /* Sin operaciones pendientes. */
-    EE_WRITING,    /* Escribe un byte en la EEPROM. */
+    EE_WRITING,    /* Inicia escritura no bloqueante de un byte por I2C IT. */
+    EE_WAIT_I2C,   /* Espera que la ISR confirme TX I2C completado. */
     EE_WAIT_CYCLE  /* Espera los 5 ms que requiere el chip entre escrituras. */
 } ee_state_t;
 
@@ -81,9 +76,9 @@ void eeprom_driver_init(void) {
             lista_vecinos[i][14] = '\0';
         }
     } else {
-        /* Primera vez: se escribe el magic byte y se limpian todos los slots.
-           El HAL_Delay aqui es aceptable porque ocurre una sola vez en la
-           vida del dispositivo y antes de que arranque el loop principal. */
+        /* Primera vez: escribe el magic byte y limpia todos los slots.
+           Los HAL_Delay aca estan bien porque esto pasa solo al primer arranque
+           antes de que empiece el loop. */
         check_byte = MAGIC_BYTE;
         HAL_I2C_Mem_Write(&hi2c1, EEPROM_ADDR, 0,
                           TAMAÑO_DIRECCION_EEPROM, &check_byte, 1, 100);
@@ -124,13 +119,21 @@ void eeprom_driver_update(void) {
 
         case EE_WRITING: {
             uint16_t addr = 16U + (uint16_t)(ee_slot * 16) + (uint16_t)ee_byte_idx;
-            HAL_I2C_Mem_Write(&hi2c1, EEPROM_ADDR, addr,
-                              TAMAÑO_DIRECCION_EEPROM,
-                              (uint8_t *)&lista_vecinos[ee_slot][ee_byte_idx], 1, 50);
-            ee_tick  = HAL_GetTick();
-            ee_state = EE_WAIT_CYCLE;
+            flag_i2c_done = 0;
+            HAL_I2C_Mem_Write_IT(&hi2c1, EEPROM_ADDR, addr,
+                                 TAMAÑO_DIRECCION_EEPROM,
+                                 (uint8_t *)&lista_vecinos[ee_slot][ee_byte_idx], 1);
+            ee_state = EE_WAIT_I2C;
             break;
         }
+
+        case EE_WAIT_I2C:
+            /* HAL_I2C_MemTxCpltCallback (main.c) setea flag_i2c_done = 1. */
+            if (flag_i2c_done) {
+                ee_tick  = HAL_GetTick();
+                ee_state = EE_WAIT_CYCLE;
+            }
+            break;
 
         case EE_WAIT_CYCLE:
             if ((HAL_GetTick() - ee_tick) >= EE_WRITE_CYCLE_MS) {

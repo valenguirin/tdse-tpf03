@@ -1,7 +1,4 @@
-/**
- * @file  act_led_rojo.h
- * @brief FSM del LED rojo: indicador de operatividad del sistema.
- */
+/* LED rojo: encendido en standby, apagado durante alarma */
 #ifndef ACT_LED_ROJO_H
 #define ACT_LED_ROJO_H
 

@@ -1,7 +1,4 @@
-/**
- * @file  act_led_amarillo.h
- * @brief FSM del LED amarillo: indicador de sesión BLE y errores de auth.
- */
+/* LED amarillo: muestra estado de sesion BLE y errores de autenticacion */
 #ifndef ACT_LED_AMARILLO_H
 #define ACT_LED_AMARILLO_H
 

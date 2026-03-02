@@ -1,7 +1,4 @@
-/**
- * @file  act_sirena.h
- * @brief FSM de la sirena: control de relé con auto-apagado en 20 s.
- */
+/* Control del rele de sirena, se apaga solo a los 20s */
 #ifndef ACT_SIRENA_H
 #define ACT_SIRENA_H
 

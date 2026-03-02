@@ -1,10 +1,4 @@
-/**
- * @file  sms_manager.h
- * @brief Motor asíncrono de SMS con cola circular y TX no bloqueante.
- *
- * Usa HAL_UART_Transmit_IT para envíos; el flag_gsm_tx_done se actualiza
- * desde sms_manager_tx_done_callback() (llamar desde HAL_UART_TxCpltCallback).
- */
+/* Cola de SMS y FSM de envio no bloqueante para el SIM800L */
 #ifndef SMS_MANAGER_H
 #define SMS_MANAGER_H
 

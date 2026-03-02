@@ -1,7 +1,4 @@
-/**
- * @file  sensor_boton.h
- * @brief FSM del botón de pánico con anti-rebote de 50 ms.
- */
+/* FSM del boton de panico con anti-rebote */
 #ifndef SENSOR_BOTON_H
 #define SENSOR_BOTON_H
 

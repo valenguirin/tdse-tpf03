@@ -1,13 +1,12 @@
 /*
  * sensor_gsm.c
  *
- * Deteccion y validacion de llamadas entrantes desde el modulo SIM800L.
+ * Detecta llamadas entrantes desde el SIM800L y valida el numero.
  *
- * El callback procesa el stream UART byte a byte. Cuando el modem envia
- * una trama +CLIP (identificador de llamada), la almacena en el buffer
- * compartido y levanta un flag. La funcion update() cuelga la llamada con
- * ATH y verifica si el numero esta en alguna de las listas autorizadas.
- * El comando ATH se envia antes de la validacion para no bloquear la linea.
+ * El callback acumula el stream UART y cuando llega una trama +CLIP
+ * guarda el numero y levanta un flag. La update() cuelga la llamada
+ * con ATH (no bloqueante) y chequea si el numero esta en alguna lista
+ * autorizada antes de disparar el evento de panico.
  */
 
 #include "sensor_gsm.h"
@@ -21,6 +20,20 @@
 static uint8_t s_rx_byte_gsm;
 static uint8_t s_rx_buf_gsm[100];
 static uint8_t s_rx_idx_gsm = 0;
+
+/* FSM interna para el proceso no bloqueante de colgar y validar la llamada. */
+typedef enum {
+    SGSM_IDLE,        /* Espera flag_llamada_entrante.                         */
+    SGSM_SEND_ATH,    /* Intenta TX IT del comando ATH; reintenta si UART busy.*/
+    SGSM_WAIT_ATH,    /* Aguarda 2 ms para que el modulo complete la TX.       */
+    SGSM_VALIDATE     /* Extrae numero, valida y dispara ev_panico_llamada.    */
+} sensor_gsm_fsm_t;
+
+static sensor_gsm_fsm_t s_gsm_fsm  = SGSM_IDLE;
+static uint32_t          s_gsm_tick = 0;
+
+/* Buffer estatico requerido por HAL_UART_Transmit_IT (debe persistir durante TX). */
+static const uint8_t ATH_CMD[] = "ATH\r\nATH\r\n";
 
 static void trim_right(char *str) {
     int len = (int)strlen(str);
@@ -44,6 +57,8 @@ static bool es_numero_autorizado(const char *num) {
 void sensor_gsm_init(void) {
     s_rx_idx_gsm = 0;
     memset(s_rx_buf_gsm, 0, sizeof(s_rx_buf_gsm));
+    s_gsm_fsm  = SGSM_IDLE;
+    s_gsm_tick = 0;
     HAL_UART_Receive_IT(&huart3, &s_rx_byte_gsm, 1);
 }
 
@@ -94,31 +109,53 @@ void sensor_gsm_error_callback(void) {
 }
 
 void sensor_gsm_update(void) {
-    if (flag_llamada_entrante == 0) return;
-    flag_llamada_entrante = 0;
+    switch (s_gsm_fsm) {
 
-    /* Se cuelga la llamada en primer lugar para liberar el canal de voz. */
-    HAL_UART_Transmit(&huart3, (uint8_t *)"ATH\r\nATH\r\n", 10, 100);
+        case SGSM_IDLE:
+            if (flag_llamada_entrante == 0) return;
+            flag_llamada_entrante = 0;
+            s_gsm_fsm = SGSM_SEND_ATH;
+            break;
 
-    if (!sys_ocupado_sms) {
-        char numero_entrante[20];
-        memset(numero_entrante, 0, sizeof(numero_entrante));
-        int i = 0;
+        case SGSM_SEND_ATH:
+            /* Si el periferico esta ocupado (sms_manager transmitiendo),
+               se reintenta el proximo tick sin bloquear el ejecutor. */
+            if (HAL_UART_Transmit_IT(&huart3, (uint8_t *)ATH_CMD,
+                                     sizeof(ATH_CMD) - 1U) == HAL_OK) {
+                s_gsm_tick = HAL_GetTick();
+                s_gsm_fsm  = SGSM_WAIT_ATH;
+            }
+            break;
 
-        /* El numero viene entre comillas en la trama: +CLIP: "NUMERO",... */
-        while (llamada_entrante_buffer[8 + i] != '\"' &&
-               llamada_entrante_buffer[8 + i] != '\0' && i < 19) {
-            numero_entrante[i] = llamada_entrante_buffer[8 + i];
-            i++;
-        }
-        numero_entrante[i] = '\0';
+        case SGSM_WAIT_ATH:
+            /* A 115200 baud, 10 bytes tardan ~0,87 ms. Con 2 ms hay margen. */
+            if ((HAL_GetTick() - s_gsm_tick) >= 2U) {
+                s_gsm_fsm = SGSM_VALIDATE;
+            }
+            break;
 
-        if (es_numero_autorizado(numero_entrante)) {
-            memset(ev_numero_activador, 0, sizeof(ev_numero_activador));
-            strncpy(ev_numero_activador, numero_entrante, 19);
-            ev_panico_llamada = true;
-        }
+        case SGSM_VALIDATE:
+            if (!sys_ocupado_sms) {
+                char numero_entrante[20];
+                memset(numero_entrante, 0, sizeof(numero_entrante));
+                int i = 0;
+
+                /* El numero viene entre comillas en la trama: +CLIP: "NUMERO",... */
+                while (llamada_entrante_buffer[8 + i] != '\"' &&
+                       llamada_entrante_buffer[8 + i] != '\0' && i < 19) {
+                    numero_entrante[i] = llamada_entrante_buffer[8 + i];
+                    i++;
+                }
+                numero_entrante[i] = '\0';
+
+                if (es_numero_autorizado(numero_entrante)) {
+                    memset(ev_numero_activador, 0, sizeof(ev_numero_activador));
+                    strncpy(ev_numero_activador, numero_entrante, 19);
+                    ev_panico_llamada = true;
+                }
+            }
+            memset(llamada_entrante_buffer, 0, sizeof(llamada_entrante_buffer));
+            s_gsm_fsm = SGSM_IDLE;
+            break;
     }
-
-    memset(llamada_entrante_buffer, 0, sizeof(llamada_entrante_buffer));
 }
