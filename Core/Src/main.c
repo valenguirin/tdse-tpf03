@@ -145,6 +145,9 @@ int main(void)
             TASK_MEASURE(t_sms_manager_us,      wcet_sms_manager_us,      sms_manager_update());
             TASK_MEASURE(t_eeprom_driver_us,    wcet_eeprom_driver_us,    eeprom_driver_update());
         }
+
+        /* Sleep mode */
+        __WFI();
     }
 }
 
