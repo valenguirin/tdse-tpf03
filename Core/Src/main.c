@@ -102,6 +102,13 @@ int main(void)
     DWT->CYCCNT = 0;
     DWT->CTRL  |= DWT_CTRL_CYCCNTENA_Msk;
 
+    /* Solo en build de debug: mantiene los relojes de debug activos durante
+       Sleep mode para que el Live Expressions pueda leer los wcet con WFI.
+       Esto solo se mandtiene actico cuando el debugger está conectado. */
+#ifdef DEBUG
+    HAL_DBGMCU_EnableDBGSleepMode();
+#endif
+
     /* Inicializacion de modulos. La EEPROM carga los vecinos antes del loop. */
     eeprom_driver_init();
     gsm_driver_init();
@@ -146,7 +153,12 @@ int main(void)
             TASK_MEASURE(t_eeprom_driver_us,    wcet_eeprom_driver_us,    eeprom_driver_update());
         }
 
-        /* Sleep mode */
+        /* Sleep mode: el core queda suspendido hasta el proximo SysTick (1 ms)
+           o hasta cualquier IRQ de UART (GSM/BLE) o I2C.
+           Con U = 0.65 el core esta ocioso ~35% del tiempo por tick, ese tiempo
+           se aprovecha en bajo consumo sin hacer busy-wait.
+           No se usa STOP ni STANDBY porque cortan los relojes de los perifericos
+           y dejarian de funcionar las recepciones por interrupcion de UART e I2C. */
         __WFI();
     }
 }
